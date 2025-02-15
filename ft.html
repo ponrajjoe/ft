@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Fare Calculator</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Calculator Container */
+        .calculator {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        /* Input Fields */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            text-align: left;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            outline: none;
+        }
+
+        /* Radio Buttons */
+        .vehicle-type {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .vehicle-type label {
+            margin-right: 15px;
+            font-weight: normal;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .vehicle-type label:hover {
+            color: #007bff;
+        }
+
+        /* Button */
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Result Box */
+        #result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e9f5ff;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            font-size: 18px;
+            color: #007bff;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #result-box.show {
+            opacity: 1;
+        }
+
+        /* Animation for the calculator */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .calculator {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+
+        #result-box {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+#result-box.show {
+  opacity: 1;
+}
+
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Taxi Fare Calculator</h1>
+
+        <!-- Distance Input -->
+        <label for="distance">Enter Distance (in km):</label>
+        <input type="number" id="distance" placeholder="km" min="51">
+
+        <!-- Extra Hours Input -->
+        <label for="hours">Enter Extra Hours:</label>
+        <input type="number" id="hours" placeholder="ex hrs" min="0">
+
+        <!-- Vehicle Type Selection -->
+        <div class="vehicle-type">
+            <label>Select Vehicle Type:</label>
+            <input type="radio" id="nonac"name="vehicleType" value="nonA" checked> 
+            <input type="radio" id="ac" name="vehicleType" value="a/c" >ac
+            <input type="radio" id="indcanonac" name="vehicleType" value="indca nona/c"> indca nonac
+            <input type="radio" id="indcaac" name="vehicleType" value=" indca a/c"> indca ac
+
+
+ 
+        </div>
+
+        <!-- Calculate Button -->
+        <button onclick="calculateFare()">Calculate Fare</button>
+
+        <!-- Result Box -->
+        <div id="result-box"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function calculateFare() {
+            // Get input values
+            const distance = parseFloat(document.getElementById("distance").value);
+            const extraHours = parseFloat(document.getElementById("hours").value);
+
+            // Validate inputs
+            if (isNaN(distance) || isNaN(extraHours) || distance < 0 || extraHours < 0) {
+                alert("Please enter valid numbers for distance and extra hours.");
+                return;
+            }
+
+            // Get selected vehicle type
+            const isAC = document.getElementById("ac").checked;
+            const isnonAC = document.getElementById("nonac").checked;
+            const isindcanonAC = document.getElementById("indcanonac").checked;
+            const isindcaAC = document.getElementById("indcaac").checked;
+
+
+            // Rates
+            const baseFare = 100; // ₹100 base fare
+            const nonACRatePerKm = 13; // ₹13 per km for Non A/C
+            const acRatePerKm = 14; // ₹14 per km for A/C
+            const extraHourRateBelow100 = 90; // ₹90 per extra hour for distances below 100 km
+            const extraHourRateAbove100 = 70; // ₹70 per extra hour for distances above 100 km
+            const indcanonacRatePerKm = 12; // ₹12 per km forincanon A/c
+            const indcaacRatePerKm = 13; // ₹13 per km for incaA/C
+
+            let totalFare = baseFare; // Start with base fare
+
+            // Calculate fare based on distance and vehicle type
+            if (isAC) {
+                totalFare += distance * acRatePerKm; // A/C rate: ₹14/km  
+            }else if (isnonAC){
+                totalFare += distance * nonACRatePerKm; // Non A/C rate: ₹13/km
+            }
+             else if (isindcanonAC){
+                totalFare += distance * indcanonacRatePerKm; // Non A/C rate: ₹13/km
+            }
+             else if (isindcaAC){
+                totalFare += distance *indcaacRatePerKm ; // Non A/C rate: ₹13/km
+            }
+
+
+
+            // Add extra hours cost based on distance
+            if (distance <= 100) {
+                totalFare += extraHours * extraHourRateBelow100; // ₹90 per extra hour
+            } else 
+             {
+                totalFare += extraHours * extraHourRateAbove100; // ₹70 per extra hour
+            }
+
+            // Display the result in the box with animation
+            const resultBox = document.getElementById("result-box");
+            resultBox.innerHTML = `Total Fare: ₹${totalFare.toFixed(2)}`;
+            resultBox.classList.add("show"); // Add the "show" class to make the box visible
+        }
+    </script>
+</body>
+</html>
